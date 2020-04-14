@@ -11,7 +11,7 @@ router.get('/', (req, res) => {
     .catch(err => res.status(500).json({ message: 'Server error', err }));
 });
 
-// GET one blog
+// GET one blog by ID
 router.get('/:id', (req, res) => {
   Blog.findById({ _id: req.params.id })
     .then(blog => {
@@ -33,7 +33,24 @@ router.post('/', (req, res) => {
 
 // PUT a blog
 router.put('/', (req, res) => {
-  return res.json('PUT a blog');
+  const blogExists = blogs.filter(blog => blog._id === req.params.id);
+
+  if (blogExists.length !== 0) {
+    const { title, author } = req.body;
+    const blog = blogExists[0];
+
+    if (blog._id === req.params.id) {
+      blog.title = title ? title : blog.title;
+      blog.author = author ? author : blog.author;
+      blog.subject = subject ? subject : blog.subject;
+      blog.article = article ? article : blog.article;
+      return res.json({ message: 'Blog updated:', blog });
+    }
+  } else {
+    return res
+      .status(400)
+      .json({ message: `Blog with id: ${req.params.id} does not exist.` });
+  }
 });
 
 // DELETE a blog
